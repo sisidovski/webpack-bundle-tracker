@@ -54,16 +54,21 @@ Plugin.prototype.apply = function(compiler) {
 
       var chunks = {};
       stats.compilation.chunks.map(function(chunk){
-        var files = chunk.files.map(function(file){
-          var F = {name: file};
-          if (compiler.options.output.publicPath) {
-            F.publicPath= compiler.options.output.publicPath + file;
-          }
-          if (compiler.options.output.path) {
-            F.path = path.join(compiler.options.output.path, file);
-          }
-          return F;
-        });
+        var files = chunk.files
+          .filter(function(chunk, index, self) {
+            return self.indexOf(chunk) === index;
+          })
+          .map(function(file){
+            var F = {name: file};
+            if (compiler.options.output.publicPath) {
+              F.publicPath= compiler.options.output.publicPath + file;
+            }
+            if (compiler.options.output.path) {
+              F.path = path.join(compiler.options.output.path, file);
+            }
+            return F;
+          })
+        ;
         chunks[chunk.name] = files;
       });
       var output = {
